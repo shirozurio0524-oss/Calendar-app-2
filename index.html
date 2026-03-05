@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Event Availability</title>
+
+<style>
+body{
+font-family: Arial;
+margin:40px;
+}
+
+.day{
+border:1px solid #ccc;
+padding:10px;
+margin:5px;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+select{
+padding:5px;
+}
+
+button{
+margin-top:20px;
+padding:8px 15px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Event Availability</h1>
+
+<label>Your Name:</label>
+<input type="text" id="name">
+
+<h2>Select Dates</h2>
+
+<div id="calendar"></div>
+
+<button onclick="save()">Save</button>
+
+<h2>Admin View</h2>
+<button onclick="load()">Load Responses</button>
+
+<div id="responses"></div>
+
+<script>
+
+const dates = [
+"2026-03-10",
+"2026-03-11",
+"2026-03-12",
+"2026-03-13",
+"2026-03-14"
+]
+
+const calendar = document.getElementById("calendar")
+
+dates.forEach(date => {
+
+let div = document.createElement("div")
+div.className = "day"
+
+let label = document.createElement("span")
+label.innerText = date
+
+let select = document.createElement("select")
+[select.id](http://select.id/) = date
+
+let options = ["Available","Maybe","Not Available","No Response"]
+
+options.forEach(o=>{
+let op=document.createElement("option")
+op.value=o
+op.text=o
+select.appendChild(op)
+})
+
+div.appendChild(label)
+div.appendChild(select)
+
+calendar.appendChild(div)
+
+})
+
+function save(){
+
+let name=document.getElementById("name").value
+
+let responses={}
+
+dates.forEach(date=>{
+let status=document.getElementById(date).value
+responses[date]=status
+})
+
+localStorage.setItem(name,JSON.stringify(responses))
+
+alert("Saved!")
+
+}
+
+function load(){
+
+let output=document.getElementById("responses")
+output.innerHTML=""
+
+for(let i=0;i<localStorage.length;i++){
+
+let key=localStorage.key(i)
+let data=JSON.parse(localStorage.getItem(key))
+
+let div=document.createElement("div")
+
+let html="<b>"+key+"</b><br>"
+
+for(let d in data){
+html+=d+" : "+data[d]+"<br>"
+}
+
+div.innerHTML=html+"<hr>"
+
+output.appendChild(div)
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
