@@ -1,51 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="UTF-8">
-<title>Event Availability</title>
+<title>Event Scheduler</title>
 
 <style>
+
 body{
-font-family: Arial;
+font-family:Arial;
 margin:40px;
 }
 
 .day{
-border:1px solid #ccc;
+border:1px solid #ddd;
 padding:10px;
 margin:5px;
 display:flex;
-align-items:center;
-gap:10px;
+justify-content:space-between;
 }
 
-select{
-padding:5px;
-}
+.available{background:#b6f5b6}
+.maybe{background:#fff3a6}
+.not{background:#ffb6b6}
 
 button{
 margin-top:20px;
-padding:8px 15px;
+padding:10px 20px;
 }
+
 </style>
 
 </head>
 
 <body>
 
-<h1>Event Availability</h1>
+<h1>Event Scheduler</h1>
 
-<label>Your Name:</label>
-<input type="text" id="name">
+Name
+
+<input id="name">
 
 <h2>Select Dates</h2>
 
 <div id="calendar"></div>
 
-<button onclick="save()">Save</button>
+<button onclick="save()">Submit</button>
 
 <h2>Admin View</h2>
-<button onclick="load()">Load Responses</button>
+
+<button onclick="load()">Show Responses</button>
 
 <div id="responses"></div>
 
@@ -59,30 +63,30 @@ const dates = [
 "2026-03-14"
 ]
 
+let status = {}
+
 const calendar = document.getElementById("calendar")
 
-dates.forEach(date => {
+dates.forEach(date=>{
 
 let div = document.createElement("div")
-div.className = "day"
+div.className="day"
+div.innerHTML=date
 
-let label = document.createElement("span")
-label.innerText = date
+div.onclick=()=>{
 
-let select = document.createElement("select")
-[select.id](http://select.id/) = date
+if(!status[date]) status[date]="available"
+else if(status[date]=="available") status[date]="maybe"
+else if(status[date]=="maybe") status[date]="not"
+else status[date]=null
 
-let options = ["Available","Maybe","Not Available","No Response"]
+div.classList.remove("available","maybe","not")
 
-options.forEach(o=>{
-let op=document.createElement("option")
-op.value=o
-op.text=o
-select.appendChild(op)
-})
+if(status[date]=="available") div.classList.add("available")
+if(status[date]=="maybe") div.classList.add("maybe")
+if(status[date]=="not") div.classList.add("not")
 
-div.appendChild(label)
-div.appendChild(select)
+}
 
 calendar.appendChild(div)
 
@@ -92,42 +96,44 @@ function save(){
 
 let name=document.getElementById("name").value
 
-let responses={}
+fetch("YOUR_SCRIPT_URL",{
 
-dates.forEach(date=>{
-let status=document.getElementById(date).value
-responses[date]=status
+method:"POST",
+
+body:JSON.stringify({
+name:name,
+responses:status
 })
 
-localStorage.setItem(name,JSON.stringify(responses))
+})
 
-alert("Saved!")
+alert("Submitted!")
 
 }
 
 function load(){
 
-let output=document.getElementById("responses")
-output.innerHTML=""
+fetch("YOUR_SCRIPT_URL")
 
-for(let i=0;i<localStorage.length;i++){
+.then(r=>r.json())
 
-let key=localStorage.key(i)
-let data=JSON.parse(localStorage.getItem(key))
+.then(data=>{
+
+let out=document.getElementById("responses")
+
+out.innerHTML=""
+
+data.forEach(row=>{
 
 let div=document.createElement("div")
 
-let html="<b>"+key+"</b><br>"
+div.innerHTML=row.name+" : "+JSON.stringify(row.responses)
 
-for(let d in data){
-html+=d+" : "+data[d]+"<br>"
-}
+out.appendChild(div)
 
-div.innerHTML=html+"<hr>"
+})
 
-output.appendChild(div)
-
-}
+})
 
 }
 
